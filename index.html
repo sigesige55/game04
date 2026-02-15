@@ -671,184 +671,187 @@
         </div>
       </div>
       <div class="map-container">
-        <svg id="japan-map" viewBox="0 0 260 360" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-              <polygon points="0 0, 6 3, 0 6" fill="rgba(255,255,255,0.8)"></polygon>
-            </marker>
-          </defs>
-
-          <!-- 簡易ブロック日本地図（南から北へ） -->
-          <!-- 九州・沖縄 -->
-          <g id="region-kyushu">
-            <rect class="pref" data-id="okinawa" x="90" y="320" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="105" y="333">沖縄</text>
-
-            <rect class="pref" data-id="kagoshima" x="90" y="290" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="93" y="303">鹿児島</text>
-
-            <rect class="pref" data-id="miyazaki" x="125" y="270" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="128" y="283">宮崎</text>
-
-            <rect class="pref" data-id="kumamoto" x="80" y="270" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="83" y="283">熊本</text>
-
-            <rect class="pref" data-id="oita" x="135" y="250" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="142" y="263">大分</text>
-
-            <rect class="pref" data-id="saga" x="70" y="250" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="76" y="263">佐賀</text>
-
-            <rect class="pref" data-id="nagasaki" x="40" y="260" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="42" y="273">長崎</text>
-
-            <rect class="pref" data-id="fukuoka" x="90" y="250" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="93" y="263">福岡</text>
-          </g>
-
-          <!-- 四国 -->
-          <g id="region-shikoku">
-            <rect class="pref" data-id="ehime" x="80" y="230" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="84" y="243">愛媛</text>
-
-            <rect class="pref" data-id="kagawa" x="115" y="220" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="118" y="233">香川</text>
-
-            <rect class="pref" data-id="kochi" x="80" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="84" y="223">高知</text>
-
-            <rect class="pref" data-id="tokushima" x="115" y="200" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="118" y="213">徳島</text>
-          </g>
-
-          <!-- 中国 -->
-          <g id="region-chugoku">
-            <rect class="pref" data-id="yamaguchi" x="50" y="220" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="52" y="233">山口</text>
-
-            <rect class="pref" data-id="hiroshima" x="80" y="210" width="30" height="20" rx="4"></rect>
-            <!-- ラベルは高知と重なるので省略 -->
-
-            <rect class="pref" data-id="okayama" x="110" y="200" width="30" height="20" rx="4"></rect>
-            <!-- ラベルは徳島と重なるので省略 -->
-
-            <rect class="pref" data-id="tottori" x="110" y="180" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="113" y="193">鳥取</text>
-
-            <rect class="pref" data-id="shimane" x="80" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="82" y="203">島根</text>
-          </g>
-
-          <!-- 近畿 -->
-          <g id="region-kinki">
-            <rect class="pref" data-id="hyogo" x="110" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="113" y="203">兵庫</text>
-
-            <rect class="pref" data-id="osaka" x="120" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="124" y="223">大阪</text>
-
-            <rect class="pref" data-id="kyoto" x="130" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="134" y="203">京都</text>
-
-            <rect class="pref" data-id="nara" x="140" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="145" y="223">奈良</text>
-
-            <rect class="pref" data-id="wakayama" x="130" y="230" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="132" y="243">和歌山</text>
-
-            <rect class="pref" data-id="shiga" x="150" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="154" y="203">滋賀</text>
-
-            <rect class="pref" data-id="mie" x="160" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="166" y="223">三重</text>
-          </g>
-
-          <!-- 中部 -->
-          <g id="region-chubu">
-            <rect class="pref" data-id="fukui" x="150" y="180" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="154" y="193">福井</text>
-
-            <rect class="pref" data-id="ishikawa" x="140" y="160" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="142" y="173">石川</text>
-
-            <rect class="pref" data-id="toyama" x="160" y="160" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="162" y="173">富山</text>
-
-            <rect class="pref" data-id="gifu" x="170" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="176" y="203">岐阜</text>
-
-            <rect class="pref" data-id="aichi" x="180" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="186" y="223">愛知</text>
-
-            <rect class="pref" data-id="nagano" x="180" y="180" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="182" y="193">長野</text>
-
-            <rect class="pref" data-id="yamanashi" x="200" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="202" y="203">山梨</text>
-
-            <rect class="pref" data-id="niigata" x="180" y="160" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="182" y="173">新潟</text>
-
-            <rect class="pref" data-id="shizuoka" x="200" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="202" y="223">静岡</text>
-          </g>
-
-          <!-- 関東 -->
-          <g id="region-kanto">
-            <rect class="pref" data-id="tokyo" x="210" y="190" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="214" y="203">東京</text>
-
-            <rect class="pref" data-id="kanagawa" x="210" y="210" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="212" y="223">神奈川</text>
-
-            <rect class="pref" data-id="chiba" x="230" y="200" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="234" y="213">千葉</text>
-
-            <rect class="pref" data-id="saitama" x="210" y="170" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="212" y="183">埼玉</text>
-
-            <rect class="pref" data-id="ibaraki" x="230" y="180" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="232" y="193">茨城</text>
-
-            <rect class="pref" data-id="tochigi" x="210" y="150" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="212" y="163">栃木</text>
-
-            <rect class="pref" data-id="gunma" x="190" y="150" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="192" y="163">群馬</text>
-          </g>
-
-          <!-- 東北 -->
-          <g id="region-tohoku">
-            <rect class="pref" data-id="fukushima" x="210" y="130" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="212" y="143">福島</text>
-
-            <rect class="pref" data-id="miyagi" x="210" y="110" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="214" y="123">宮城</text>
-
-            <rect class="pref" data-id="yamagata" x="190" y="120" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="192" y="133">山形</text>
-
-            <rect class="pref" data-id="akita" x="190" y="100" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="194" y="113">秋田</text>
-
-            <rect class="pref" data-id="iwate" x="210" y="90" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="214" y="103">岩手</text>
-
-            <rect class="pref" data-id="aomori" x="200" y="70" width="30" height="20" rx="4"></rect>
-            <text class="pref-label" x="202" y="83">青森</text>
-          </g>
-
-          <!-- 北海道 -->
-          <g id="region-hokkaido">
-            <rect class="pref" data-id="hokkaido" x="170" y="30" width="60" height="30" rx="6"></rect>
-            <text class="pref-label" x="182" y="48">北海道</text>
-          </g>
-
-          <!-- アバターと矢印 -->
-          <circle id="avatar" class="avatar" cx="105" cy="330" r="5"></circle>
-          <line id="move-arrow" class="arrow-effect" x1="0" y1="0" x2="0" y2="0"></line>
-        </svg>
-
+      <!-- ▼▼▼ ここから置き換え ▼▼▼ -->
+      <svg id="japan-map" viewBox="0 0 260 360" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="rgba(255,255,255,0.8)"></polygon>
+          </marker>
+        </defs>
+      
+        <style>
+          .pref { fill:#1e2a4f; stroke:#10152b; stroke-width:0.8; }
+          .pref-label { font-size:6px; fill:#e0e4ff; pointer-events:none; }
+        </style>
+      
+        <!-- 沖縄・九州（縮小 & 整列） -->
+        <g>
+          <rect class="pref" data-id="okinawa" x="110" y="310" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="112" y="320">沖縄</text>
+      
+          <rect class="pref" data-id="kagoshima" x="110" y="290" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="112" y="300">鹿児島</text>
+      
+          <rect class="pref" data-id="miyazaki" x="140" y="275" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="142" y="285">宮崎</text>
+      
+          <rect class="pref" data-id="kumamoto" x="90" y="275" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="92" y="285">熊本</text>
+      
+          <rect class="pref" data-id="oita" x="140" y="255" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="142" y="265">大分</text>
+      
+          <rect class="pref" data-id="saga" x="70" y="255" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="72" y="265">佐賀</text>
+      
+          <rect class="pref" data-id="nagasaki" x="45" y="265" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="47" y="275">長崎</text>
+      
+          <rect class="pref" data-id="fukuoka" x="90" y="255" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="92" y="265">福岡</text>
+        </g>
+      
+        <!-- 四国 -->
+        <g>
+          <rect class="pref" data-id="ehime" x="80" y="235" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="82" y="245">愛媛</text>
+      
+          <rect class="pref" data-id="kagawa" x="115" y="225" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="117" y="235">香川</text>
+      
+          <rect class="pref" data-id="kochi" x="80" y="215" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="82" y="225">高知</text>
+      
+          <rect class="pref" data-id="tokushima" x="115" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="117" y="215">徳島</text>
+        </g>
+      
+        <!-- 中国地方 -->
+        <g>
+          <rect class="pref" data-id="yamaguchi" x="55" y="225" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="57" y="235">山口</text>
+      
+          <rect class="pref" data-id="hiroshima" x="85" y="215" width="22" height="14" rx="3"></rect>
+      
+          <rect class="pref" data-id="okayama" x="115" y="205" width="22" height="14" rx="3"></rect>
+      
+          <rect class="pref" data-id="tottori" x="115" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="117" y="195">鳥取</text>
+      
+          <rect class="pref" data-id="shimane" x="85" y="195" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="87" y="205">島根</text>
+        </g>
+      
+        <!-- 近畿 -->
+        <g>
+          <rect class="pref" data-id="hyogo" x="115" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="117" y="195">兵庫</text>
+      
+          <rect class="pref" data-id="osaka" x="125" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="127" y="215">大阪</text>
+      
+          <rect class="pref" data-id="kyoto" x="135" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="137" y="195">京都</text>
+      
+          <rect class="pref" data-id="nara" x="145" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="147" y="215">奈良</text>
+      
+          <rect class="pref" data-id="wakayama" x="135" y="225" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="137" y="235">和歌山</text>
+      
+          <rect class="pref" data-id="shiga" x="155" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="157" y="195">滋賀</text>
+      
+          <rect class="pref" data-id="mie" x="165" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="167" y="215">三重</text>
+        </g>
+      
+        <!-- 中部 -->
+        <g>
+          <rect class="pref" data-id="fukui" x="155" y="175" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="157" y="185">福井</text>
+      
+          <rect class="pref" data-id="ishikawa" x="145" y="155" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="147" y="165">石川</text>
+      
+          <rect class="pref" data-id="toyama" x="165" y="155" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="167" y="165">富山</text>
+      
+          <rect class="pref" data-id="gifu" x="175" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="177" y="195">岐阜</text>
+      
+          <rect class="pref" data-id="aichi" x="185" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="187" y="215">愛知</text>
+      
+          <rect class="pref" data-id="nagano" x="185" y="175" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="187" y="185">長野</text>
+      
+          <rect class="pref" data-id="yamanashi" x="205" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="207" y="195">山梨</text>
+      
+          <rect class="pref" data-id="niigata" x="185" y="155" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="187" y="165">新潟</text>
+      
+          <rect class="pref" data-id="shizuoka" x="205" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="207" y="215">静岡</text>
+        </g>
+      
+        <!-- 関東 -->
+        <g>
+          <rect class="pref" data-id="tokyo" x="215" y="185" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="195">東京</text>
+      
+          <rect class="pref" data-id="kanagawa" x="215" y="205" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="215">神奈川</text>
+      
+          <rect class="pref" data-id="chiba" x="235" y="195" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="237" y="205">千葉</text>
+      
+          <rect class="pref" data-id="saitama" x="215" y="165" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="175">埼玉</text>
+      
+          <rect class="pref" data-id="ibaraki" x="235" y="175" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="237" y="185">茨城</text>
+      
+          <rect class="pref" data-id="tochigi" x="215" y="145" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="155">栃木</text>
+      
+          <rect class="pref" data-id="gunma" x="195" y="145" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="197" y="155">群馬</text>
+        </g>
+      
+        <!-- 東北 -->
+        <g>
+          <rect class="pref" data-id="fukushima" x="215" y="125" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="135">福島</text>
+      
+          <rect class="pref" data-id="miyagi" x="215" y="105" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="115">宮城</text>
+      
+          <rect class="pref" data-id="yamagata" x="195" y="115" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="197" y="125">山形</text>
+      
+          <rect class="pref" data-id="akita" x="195" y="95" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="197" y="105">秋田</text>
+      
+          <rect class="pref" data-id="iwate" x="215" y="85" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="217" y="95">岩手</text>
+      
+          <rect class="pref" data-id="aomori" x="205" y="65" width="22" height="14" rx="3"></rect>
+          <text class="pref-label" x="207" y="75">青森</text>
+        </g>
+      
+        <!-- 北海道 -->
+        <g>
+          <rect class="pref" data-id="hokkaido" x="170" y="30" width="55" height="25" rx="4"></rect>
+          <text class="pref-label" x="180" y="45">北海道</text>
+        </g>
+      
+        <!-- アバター & 矢印 -->
+        <circle id="avatar" class="avatar" cx="105" cy="330" r="5"></circle>
+        <line id="move-arrow" class="arrow-effect" x1="0" y1="0" x2="0" y2="0"></line>
+      </svg>
+      <!-- ▲▲▲ ここまで置き換え ▲▲▲ -->
         <div class="confetti" id="confetti"></div>
 
         <div class="goal-banner" id="goal-banner">

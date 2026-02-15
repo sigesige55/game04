@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>データで北上！日本列島横断クイズ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #141a33;
+    --accent: #ffcc33;
+    --accent-soft: #ffe9a3;
+    --good: #4caf50;
+    --bad: #e53935;
+    --text-main: #f5f7ff;
+    --text-sub: #c3c7e6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #1c2750 0, #050814 55%, #02030a 100%);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    padding: 10px 16px;
+    background: linear-gradient(90deg, #111633, #191f45);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+  header h1 {
+    font-size: 18px;
+    margin: 0;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  header h1 span.logo {
+    display: inline-flex;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 20%, #fff 0, #ffe082 30%, #ffb300 60%, #f57c00 100%);
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #2b1a00;
+    box-shadow: 0 0 12px rgba(255, 204, 51, 0.7);
+  }
+  header .meta {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12px;
+    color: var(--text-sub);
+  }
+  header .meta span {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  header .meta span strong {
+    color: var(--accent-soft);
+    margin-right: 4px;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .layout {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .map-panel {
+    flex: 2;
+    background: radial-gradient(circle at top, #1b2345 0, #050814 60%);
+    border-radius: 16px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 4px 8px;
+    font-size: 12px;
+    color: var(--text-sub);
+  }
+  .map-header .legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .map-container {
+    width: 100%;
+    height: calc(100% - 32px);
+    position: relative;
+  }
+
+  svg#japan-map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pref {
+    fill: #1e2a4f;
+    stroke: #10152b;
+    stroke-width: 1;
+    cursor: default;
+    transition: fill 0.15s, transform 0.15s, opacity 0.15s;
+  }
+  .pref.current {
+    fill: #ffcc33;
+  }
+  .pref.neighbor {
+    fill: #4caf50;
+  }
+  .pref.visited {
+    fill: #39457a;
+  }
+  .pref:hover {
+    filter: brightness(1.1);
+  }
+
+  .pref-label {
+    font-size: 8px;
+    fill: #e0e4ff;
+    pointer-events: none;
+  }
+
+  .avatar {
+    fill: #ff4081;
+    stroke: #fff;
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 4px rgba(255,64,129,0.8));
+  }
+
+  .arrow-effect {
+    stroke: rgba(255,255,255,0.7);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    marker-end: url(#arrowhead);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    display: none;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 6px;
+    height: 14px;
+    background: #ffeb3b;
+    opacity: 0.9;
+    border-radius: 2px;
+    animation: confetti-fall 1.8s linear forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translate3d(0,-20px,0) rotateZ(0deg); opacity: 1; }
+    100% { transform: translate3d(0,120vh,0) rotateZ(360deg); opacity: 0; }
+  }
+
+  .side-panel {
+    flex: 1.2;
+    background: linear-gradient(180deg, #151a33, #090c1a);
+    border-radius: 16px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .side-panel h2 {
+    font-size: 14px;
+    margin: 0 0 4px;
+    letter-spacing: 0.08em;
+    color: var(--accent-soft);
+  }
+
+  .status-box {
+    font-size: 12px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 10px;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .status-row span.label {
+    color: var(--text-sub);
+  }
+  .status-row span.value {
+    font-weight: 600;
+  }
+  .status-row span.value.good {
+    color: var(--good);
+  }
+  .status-row span.value.bad {
+    color: var(--bad);
+  }
+
+  .current-pref {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    font-size: 12px;
+  }
+  .current-pref strong {
+    font-size: 14px;
+    color: var(--accent-soft);
+  }
+
+  .log-box {
+    flex: 1;
+    background: rgba(0,0,0,0.35);
+    border-radius: 10px;
+    padding: 6px 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    overflow-y: auto;
+  }
+  .log-entry {
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.06);
+  }
+  .log-entry:last-child {
+    border-bottom: none;
+  }
+  .log-entry span.badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    margin-right: 4px;
+  }
+  .badge.good {
+    background: rgba(76,175,80,0.15);
+    color: var(--good);
+  }
+  .badge.bad {
+    background: rgba(229,57,53,0.15);
+    color: var(--bad);
+  }
+
+  .footer-panel {
+    margin-top: 4px;
+    background: linear-gradient(180deg, #14172b, #050712);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 10px 10px;
+  }
+
+  .choice-title {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+  }
+
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .choice-btn {
+    flex: 1;
+    min-width: 120px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: radial-gradient(circle at top left, #28335f 0, #151a33 60%);
+    color: var(--text-main);
+    padding: 8px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s, background 0.1s;
+  }
+  .choice-btn span.main {
+    font-weight: 600;
+  }
+  .choice-btn span.sub {
+    font-size: 10px;
+    color: var(--text-sub);
+  }
+  .choice-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    border-color: var(--accent-soft);
+  }
+  .choice-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  .choice-btn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .info-bar {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-sub);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-bar button {
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: var(--accent-soft);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .info-bar button:hover {
+    background: rgba(255,255,255,0.06);
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,5,15,0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+  .overlay.active {
+    display: flex;
+  }
+  .overlay-card {
+    width: min(480px, 92vw);
+    max-height: 90vh;
+    background: radial-gradient(circle at top, #262f5a 0, #0b0f23 55%);
+    border-radius: 18px;
+    padding: 14px 16px 12px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--text-main);
+  }
+  .overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .overlay-header h3 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+  }
+  .overlay-header span.tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .overlay-header span.tag.good {
+    border-color: var(--good);
+    color: var(--good);
+  }
+  .overlay-header span.tag.bad {
+    border-color: var(--bad);
+    color: var(--bad);
+  }
+
+  .overlay-main {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .overlay-main .thumb {
+    flex: 0 0 120px;
+    height: 80px;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+  }
+  .thumb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.4), transparent);
+  }
+  .overlay-main .detail {
+    flex: 1;
+    font-size: 12px;
+  }
+  .overlay-main .detail .pref-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .overlay-main .detail .value {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .overlay-main .detail .value span.unit {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-left: 4px;
+  }
+  .overlay-main .detail .rank {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+  }
+  .overlay-main .detail .desc {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .overlay-compare {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+
+  .overlay-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .overlay-footer button {
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: var(--text-main);
+    font-size: 12px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .overlay-footer button.primary {
+    background: linear-gradient(90deg, #ffb300, #ff7043);
+    border-color: transparent;
+    color: #2b1300;
+    font-weight: 600;
+  }
+  .overlay-footer button.primary:hover {
+    filter: brightness(1.05);
+  }
+
+  .goal-banner {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .goal-banner.active {
+    display: flex;
+  }
+  .goal-banner-inner {
+    text-align: center;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: rgba(3,5,15,0.85);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 0 30px rgba(255,255,255,0.4);
+    animation: pulse 1.6s infinite;
+  }
+  .goal-banner-inner h2 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: 0.2em;
+  }
+  .goal-banner-inner p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--accent-soft);
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
+    50% { transform: scale(1.04); box-shadow: 0 0 50px rgba(255,255,255,0.8); }
+    100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
+  }
+
+  .endroll {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at top, #1c2750 0, #050814 60%);
+    display: none;
+    flex-direction: column;
+    padding: 10px;
+    z-index: 30;
+  }
+  .endroll.active {
+    display: flex;
+  }
+  .endroll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .endroll-header h2 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+  }
+  .endroll-header button {
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: transparent;
+    color: var(--text-main);
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .endroll-body {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    min-height: 0;
+  }
+  .endroll-map {
+    flex: 1.4;
+    background: radial-gradient(circle at top, #262f5a 0, #050814 60%);
+    border-radius: 14px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .endroll-list {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border-radius: 14px;
+    padding: 8px;
+    font-size: 11px;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .endroll-item {
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.12);
+  }
+  .endroll-item:last-child {
+    border-bottom: none;
+  }
+  .endroll-item .title {
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .endroll-item .meta {
+    color: var(--text-sub);
+    font-size: 10px;
+  }
+  .endroll-footer {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+  .endroll-footer button {
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: transparent;
+    color: var(--accent-soft);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      flex-direction: column;
+    }
+    .map-panel {
+      height: 52vh;
+    }
+    .side-panel {
+      height: 38vh;
+    }
+  }
+  @media (max-width: 600px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    header .meta {
+      margin-left: 0;
+    }
+    .choice-btn {
+      min-width: calc(50% - 4px);
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="logo">北</span>データで北上！日本列島横断クイズ</h1>
+  <div class="meta">
+    <span><strong>目的地</strong>北海道まであと <span id="remaining-steps">--</span> 県</span>
+    <span><strong>ターン</strong><span id="turn-count">0</span></span>
+    <span><strong>現在地</strong><span id="current-pref-label">--</span></span>
+  </div>
+</header>
+
+<main>
+  <div class="layout">
+    <section class="map-panel">
+      <div class="map-header">
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-color" style="background:#ffcc33;"></span><span>現在地</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background:#4caf50;"></span><span>隣接県</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background:#39457a;"></span><span>通過済み</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-sub);">
+          沖縄から北海道へ、データで最短ルートを目指そう！
+        </div>
+      </div>
+      <div class="map-container">
+        <svg id="japan-map" viewBox="0 0 260 360" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <polygon points="0 0, 6 3, 0 6" fill="rgba(255,255,255,0.8)"></polygon>
+            </marker>
+          </defs>
+
+          <!-- 簡易ブロック日本地図（南から北へ） -->
+          <!-- 九州・沖縄 -->
+          <g id="region-kyushu">
+            <rect class="pref" data-id="okinawa" x="90" y="320" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="105" y="333">沖縄</text>
+
+            <rect class="pref" data-id="kagoshima" x="90" y="290" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="93" y="303">鹿児島</text>
+
+            <rect class="pref" data-id="miyazaki" x="125" y="270" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="128" y="283">宮崎</text>
+
+            <rect class="pref" data-id="kumamoto" x="80" y="270" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="83" y="283">熊本</text>
+
+            <rect class="pref" data-id="oita" x="135" y="250" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="142" y="263">大分</text>
+
+            <rect class="pref" data-id="saga" x="70" y="250" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="76" y="263">佐賀</text>
+
+            <rect class="pref" data-id="nagasaki" x="40" y="260" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="42" y="273">長崎</text>
+
+            <rect class="pref" data-id="fukuoka" x="90" y="250" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="93" y="263">福岡</text>
+          </g>
+
+          <!-- 四国 -->
+          <g id="region-shikoku">
+            <rect class="pref" data-id="ehime" x="80" y="230" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="84" y="243">愛媛</text>
+
+            <rect class="pref" data-id="kagawa" x="115" y="220" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="118" y="233">香川</text>
+
+            <rect class="pref" data-id="kochi" x="80" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="84" y="223">高知</text>
+
+            <rect class="pref" data-id="tokushima" x="115" y="200" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="118" y="213">徳島</text>
+          </g>
+
+          <!-- 中国 -->
+          <g id="region-chugoku">
+            <rect class="pref" data-id="yamaguchi" x="50" y="220" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="52" y="233">山口</text>
+
+            <rect class="pref" data-id="hiroshima" x="80" y="210" width="30" height="20" rx="4"></rect>
+            <!-- ラベルは高知と重なるので省略 -->
+
+            <rect class="pref" data-id="okayama" x="110" y="200" width="30" height="20" rx="4"></rect>
+            <!-- ラベルは徳島と重なるので省略 -->
+
+            <rect class="pref" data-id="tottori" x="110" y="180" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="113" y="193">鳥取</text>
+
+            <rect class="pref" data-id="shimane" x="80" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="82" y="203">島根</text>
+          </g>
+
+          <!-- 近畿 -->
+          <g id="region-kinki">
+            <rect class="pref" data-id="hyogo" x="110" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="113" y="203">兵庫</text>
+
+            <rect class="pref" data-id="osaka" x="120" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="124" y="223">大阪</text>
+
+            <rect class="pref" data-id="kyoto" x="130" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="134" y="203">京都</text>
+
+            <rect class="pref" data-id="nara" x="140" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="145" y="223">奈良</text>
+
+            <rect class="pref" data-id="wakayama" x="130" y="230" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="132" y="243">和歌山</text>
+
+            <rect class="pref" data-id="shiga" x="150" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="154" y="203">滋賀</text>
+
+            <rect class="pref" data-id="mie" x="160" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="166" y="223">三重</text>
+          </g>
+
+          <!-- 中部 -->
+          <g id="region-chubu">
+            <rect class="pref" data-id="fukui" x="150" y="180" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="154" y="193">福井</text>
+
+            <rect class="pref" data-id="ishikawa" x="140" y="160" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="142" y="173">石川</text>
+
+            <rect class="pref" data-id="toyama" x="160" y="160" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="162" y="173">富山</text>
+
+            <rect class="pref" data-id="gifu" x="170" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="176" y="203">岐阜</text>
+
+            <rect class="pref" data-id="aichi" x="180" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="186" y="223">愛知</text>
+
+            <rect class="pref" data-id="nagano" x="180" y="180" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="182" y="193">長野</text>
+
+            <rect class="pref" data-id="yamanashi" x="200" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="202" y="203">山梨</text>
+
+            <rect class="pref" data-id="niigata" x="180" y="160" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="182" y="173">新潟</text>
+
+            <rect class="pref" data-id="shizuoka" x="200" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="202" y="223">静岡</text>
+          </g>
+
+          <!-- 関東 -->
+          <g id="region-kanto">
+            <rect class="pref" data-id="tokyo" x="210" y="190" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="214" y="203">東京</text>
+
+            <rect class="pref" data-id="kanagawa" x="210" y="210" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="212" y="223">神奈川</text>
+
+            <rect class="pref" data-id="chiba" x="230" y="200" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="234" y="213">千葉</text>
+
+            <rect class="pref" data-id="saitama" x="210" y="170" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="212" y="183">埼玉</text>
+
+            <rect class="pref" data-id="ibaraki" x="230" y="180" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="232" y="193">茨城</text>
+
+            <rect class="pref" data-id="tochigi" x="210" y="150" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="212" y="163">栃木</text>
+
+            <rect class="pref" data-id="gunma" x="190" y="150" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="192" y="163">群馬</text>
+          </g>
+
+          <!-- 東北 -->
+          <g id="region-tohoku">
+            <rect class="pref" data-id="fukushima" x="210" y="130" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="212" y="143">福島</text>
+
+            <rect class="pref" data-id="miyagi" x="210" y="110" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="214" y="123">宮城</text>
+
+            <rect class="pref" data-id="yamagata" x="190" y="120" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="192" y="133">山形</text>
+
+            <rect class="pref" data-id="akita" x="190" y="100" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="194" y="113">秋田</text>
+
+            <rect class="pref" data-id="iwate" x="210" y="90" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="214" y="103">岩手</text>
+
+            <rect class="pref" data-id="aomori" x="200" y="70" width="30" height="20" rx="4"></rect>
+            <text class="pref-label" x="202" y="83">青森</text>
+          </g>
+
+          <!-- 北海道 -->
+          <g id="region-hokkaido">
+            <rect class="pref" data-id="hokkaido" x="170" y="30" width="60" height="30" rx="6"></rect>
+            <text class="pref-label" x="182" y="48">北海道</text>
+          </g>
+
+          <!-- アバターと矢印 -->
+          <circle id="avatar" class="avatar" cx="105" cy="330" r="5"></circle>
+          <line id="move-arrow" class="arrow-effect" x1="0" y1="0" x2="0" y2="0"></line>
+        </svg>
+
+        <div class="confetti" id="confetti"></div>
+
+        <div class="goal-banner" id="goal-banner">
+          <div class="goal-banner-inner">
+            <h2>GOAL!</h2>
+            <p>北海道到達！旅の記録を振り返ってみよう</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <div>
+        <h2>旅のステータス</h2>
+        <div class="status-box">
+          <div class="status-row">
+            <span class="label">スタート</span>
+            <span class="value">沖縄県</span>
+          </div>
+          <div class="status-row">
+            <span class="label">現在地</span>
+            <span class="value" id="status-current">--</span>
+          </div>
+          <div class="status-row">
+            <span class="label">北海道までの距離スコア</span>
+            <span class="value" id="status-score">--</span>
+          </div>
+          <div class="status-row">
+            <span class="label">直前の一手</span>
+            <span class="value" id="status-last-move">--</span>
+          </div>
+          <div class="current-pref">
+            <div><strong id="status-current-name">--</strong> から北を目指そう！</div>
+            <div style="margin-top:2px;color:var(--text-sub);font-size:11px;">
+              隣接する都道府県とデータを比べて、より北海道に近づく一手を選びます。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2>旅のログ</h2>
+        <div class="log-box" id="log-box"></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="footer-panel">
+    <div class="choice-title">どのデータで勝負する？（必ず1つは「北上しやすい」選択肢が含まれます）</div>
+    <div class="choices" id="choices"></div>
+    <div class="info-bar">
+      <span id="hint-text">ヒント：北海道に近い県ほど「距離スコア」が大きくなります。</span>
+      <div>
+        <button id="btn-restart">最初からやり直す</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 解説オーバーレイ -->
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <div class="overlay-header">
+      <h3 id="overlay-title">結果</h3>
+      <span class="tag" id="overlay-tag">--</span>
+    </div>
+    <div class="overlay-main">
+      <div class="thumb" id="overlay-thumb"></div>
+      <div class="detail">
+        <div class="pref-name" id="overlay-pref-name"></div>
+        <div class="value" id="overlay-value"></div>
+        <div class="rank" id="overlay-rank"></div>
+        <div class="desc" id="overlay-desc"></div>
+      </div>
+    </div>
+    <div class="overlay-compare" id="overlay-compare"></div>
+    <div class="overlay-footer">
+      <button id="overlay-more">このデータを詳しく見る</button>
+      <button class="primary" id="overlay-next">次の一手へ</button>
+    </div>
+  </div>
+</div>
+
+<!-- エンドロール -->
+<div class="endroll" id="endroll">
+  <div class="endroll-header">
+    <h2>旅の記録</h2>
+    <button id="endroll-close">閉じる</button>
+  </div>
+  <div class="endroll-body">
+    <div class="endroll-map">
+      <svg id="endroll-map" viewBox="0 0 260 360" preserveAspectRatio="xMidYMid meet">
+        <!-- 元の地図を再利用（簡略化のため、prefクラスだけ） -->
+        <use href="#region-kyushu"></use>
+        <use href="#region-shikoku"></use>
+        <use href="#region-chugoku"></use>
+        <use href="#region-kinki"></use>
+        <use href="#region-chubu"></use>
+        <use href="#region-kanto"></use>
+        <use href="#region-tohoku"></use>
+        <use href="#region-hokkaido"></use>
+        <circle id="endroll-avatar" class="avatar" cx="105" cy="330" r="4"></circle>
+      </svg>
+    </div>
+    <div class="endroll-list" id="endroll-list"></div>
+  </div>
+  <div class="endroll-footer">
+    <span>南下してしまったポイントも含めて、データとルートを復習できます。</span>
+    <div>
+      <button id="btn-replay">ルートを再生</button>
+      <button id="btn-share">結果をシェア（仮）</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   データ定義
+   ========================= */
+
+// 都道府県マスタ（id, name, 北海道までの距離スコア（大きいほど北））
+const PREFS = [
+  { id: "okinawa", name: "沖縄県", score: 1,  thumb: "linear-gradient(135deg,#ffb74d,#ff8a65)" },
+  { id: "kagoshima", name: "鹿児島県", score: 5, thumb: "linear-gradient(135deg,#ffcc80,#ffb74d)" },
+  { id: "miyazaki", name: "宮崎県", score: 7, thumb: "linear-gradient(135deg,#ffcc80,#ffab91)" },
+  { id: "kumamoto", name: "熊本県", score: 8, thumb: "linear-gradient(135deg,#ffe082,#ffcc80)" },
+  { id: "oita", name: "大分県", score: 9, thumb: "linear-gradient(135deg,#ffe082,#ffab91)" },
+  { id: "saga", name: "佐賀県", score: 9, thumb: "linear-gradient(135deg,#fff59d,#ffe082)" },
+  { id: "nagasaki", name: "長崎県", score: 8, thumb: "linear-gradient(135deg,#fff59d,#ffcc80)" },
+  { id: "fukuoka", name: "福岡県", score: 10, thumb: "linear-gradient(135deg,#fff59d,#ffecb3)" },
+
+  { id: "yamaguchi", name: "山口県", score: 12, thumb: "linear-gradient(135deg,#c5e1a5,#aed581)" },
+  { id: "ehime", name: "愛媛県", score: 11, thumb: "linear-gradient(135deg,#c5e1a5,#ffcc80)" },
+  { id: "kagawa", name: "香川県", score: 12, thumb: "linear-gradient(135deg,#c5e1a5,#ffe082)" },
+  { id: "kochi", name: "高知県", score: 11, thumb: "linear-gradient(135deg,#c5e1a5,#ffab91)" },
+  { id: "tokushima", name: "徳島県", score: 12, thumb: "linear-gradient(135deg,#c5e1a5,#ffcc80)" },
+
+  { id: "hiroshima", name: "広島県", score: 13, thumb: "linear-gradient(135deg,#aed581,#81c784)" },
+  { id: "okayama", name: "岡山県", score: 14, thumb: "linear-gradient(135deg,#aed581,#a5d6a7)" },
+  { id: "tottori", name: "鳥取県", score: 15, thumb: "linear-gradient(135deg,#aed581,#c5e1a5)" },
+  { id: "shimane", name: "島根県", score: 14, thumb: "linear-gradient(135deg,#aed581,#c5e1a5)" },
+
+  { id: "hyogo", name: "兵庫県", score: 15, thumb: "linear-gradient(135deg,#81c784,#4db6ac)" },
+  { id: "osaka", name: "大阪府", score: 15, thumb: "linear-gradient(135deg,#81c784,#4dd0e1)" },
+  { id: "kyoto", name: "京都府", score: 16, thumb: "linear-gradient(135deg,#81c784,#64b5f6)" },
+  { id: "nara", name: "奈良県", score: 15, thumb: "linear-gradient(135deg,#81c784,#4db6ac)" },
+  { id: "wakayama", name: "和歌山県", score: 14, thumb: "linear-gradient(135deg,#81c784,#ffb74d)" },
+  { id: "shiga", name: "滋賀県", score: 17, thumb: "linear-gradient(135deg,#81c784,#64b5f6)" },
+  { id: "mie", name: "三重県", score: 16, thumb: "linear-gradient(135deg,#81c784,#4dd0e1)" },
+
+  { id: "fukui", name: "福井県", score: 18, thumb: "linear-gradient(135deg,#4db6ac,#4fc3f7)" },
+  { id: "ishikawa", name: "石川県", score: 19, thumb: "linear-gradient(135deg,#4db6ac,#29b6f6)" },
+  { id: "toyama", name: "富山県", score: 20, thumb: "linear-gradient(135deg,#4db6ac,#26c6da)" },
+  { id: "gifu", name: "岐阜県", score: 18, thumb: "linear-gradient(135deg,#4db6ac,#64b5f6)" },
+  { id: "aichi", name: "愛知県", score: 17, thumb: "linear-gradient(135deg,#4db6ac,#4dd0e1)" },
+  { id: "nagano", name: "長野県", score: 21, thumb: "linear-gradient(135deg,#4db6ac,#7986cb)" },
+  { id: "yamanashi", name: "山梨県", score: 20, thumb: "linear-gradient(135deg,#4db6ac,#9575cd)" },
+  { id: "niigata", name: "新潟県", score: 23, thumb: "linear-gradient(135deg,#4db6ac,#90caf9)" },
+  { id: "shizuoka", name: "静岡県", score: 19, thumb: "linear-gradient(135deg,#4db6ac,#ffb74d)" },
+
+  { id: "tokyo", name: "東京都", score: 21, thumb: "linear-gradient(135deg,#7986cb,#ba68c8)" },
+  { id: "kanagawa", name: "神奈川県", score: 20, thumb: "linear-gradient(135deg,#7986cb,#ff8a65)" },
+  { id: "chiba", name: "千葉県", score: 21, thumb: "linear-gradient(135deg,#7986cb,#ffb74d)" },
+  { id: "saitama", name: "埼玉県", score: 22, thumb: "linear-gradient(135deg,#7986cb,#4dd0e1)" },
+  { id: "ibaraki", name: "茨城県", score: 23, thumb: "linear-gradient(135deg,#7986cb,#4fc3f7)" },
+  { id: "tochigi", name: "栃木県", score: 23, thumb: "linear-gradient(135deg,#7986cb,#4db6ac)" },
+  { id: "gunma", name: "群馬県", score: 24, thumb: "linear-gradient(135deg,#7986cb,#26c6da)" },
+
+  { id: "fukushima", name: "福島県", score: 25, thumb: "linear-gradient(135deg,#64b5f6,#4dd0e1)" },
+  { id: "miyagi", name: "宮城県", score: 27, thumb: "linear-gradient(135deg,#64b5f6,#4db6ac)" },
+  { id: "yamagata", name: "山形県", score: 26, thumb: "linear-gradient(135deg,#64b5f6,#81c784)" },
+  { id: "akita", name: "秋田県", score: 28, thumb: "linear-gradient(135deg,#64b5f6,#aed581)" },
+  { id: "iwate", name: "岩手県", score: 29, thumb: "linear-gradient(135deg,#64b5f6,#c5e1a5)" },
+  { id: "aomori", name: "青森県", score: 31, thumb: "linear-gradient(135deg,#64b5f6,#fff59d)" },
+
+  { id: "hokkaido", name: "北海道", score: 35, thumb: "linear-gradient(135deg,#bbdefb,#e3f2fd)" }
+];
+
+// 隣接県（陸＋主要な海路）
+const NEIGHBORS = {
+  okinawa: ["kagoshima"],
+  kagoshima: ["okinawa","miyazaki","kumamoto"],
+  miyazaki: ["kagoshima","kumamoto","oita"],
+  kumamoto: ["kagoshima","miyazaki","oita","saga","nagasaki","fukuoka"],
+  oita: ["miyazaki","kumamoto","fukuoka","saga"],
+  saga: ["fukuoka","nagasaki","oita","kumamoto"],
+  nagasaki: ["saga","kumamoto"],
+  fukuoka: ["saga","oita","kumamoto","yamaguchi"],
+
+  yamaguchi: ["fukuoka","ehime","hiroshima","shimane"],
+  ehime: ["yamaguchi","kochi","kagawa","hiroshima","okayama"],
+  kagawa: ["ehime","tokushima","okayama","hiroshima"],
+  kochi: ["ehime","tokushima"],
+  tokushima: ["kochi","kagawa","wakayama","osaka"],
+
+  hiroshima: ["yamaguchi","ehime","okayama","shimane","tottori"],
+  okayama: ["hiroshima","ehime","kagawa","tottori","hyogo"],
+  tottori: ["shimane","okayama","hyogo"],
+  shimane: ["yamaguchi","hiroshima","tottori"],
+
+  hyogo: ["tottori","okayama","osaka","kyoto","fukui"],
+  osaka: ["hyogo","kyoto","nara","wakayama","tokushima"],
+  kyoto: ["hyogo","osaka","nara","shiga","fukui","mie"],
+  nara: ["osaka","kyoto","mie","wakayama"],
+  wakayama: ["osaka","nara","mie","tokushima"],
+  shiga: ["kyoto","fukui","gifu","mie"],
+  mie: ["nara","kyoto","shiga","gifu","aichi","wakayama"],
+
+  fukui: ["shiga","kyoto","ishikawa","gifu"],
+  ishikawa: ["fukui","toyama"],
+  toyama: ["ishikawa","niigata","gifu","nagano"],
+  gifu: ["fukui","toyama","nagano","aichi","shiga","mie"],
+  aichi: ["gifu","nagano","shizuoka","mie"],
+  nagano: ["toyama","niigata","gunma","saitama","yamanashi","shizuoka","aichi","gifu"],
+  yamanashi: ["nagano","shizuoka","tokyo","saitama"],
+  niigata: ["toyama","nagano","gunma","fukushima","yamagata"],
+  shizuoka: ["aichi","nagano","yamanashi","tokyo","kanagawa"],
+
+  tokyo: ["yamanashi","saitama","chiba","kanagawa","shizuoka"],
+  kanagawa: ["tokyo","shizuoka","yamanashi"],
+  chiba: ["tokyo","ibaraki","saitama"],
+  saitama: ["tokyo","chiba","ibaraki","tochigi","gunma","yamanashi","nagano"],
+  ibaraki: ["chiba","saitama","tochigi","fukushima"],
+  tochigi: ["ibaraki","saitama","gunma","fukushima"],
+  gunma: ["tochigi","saitama","nagano","niigata","fukushima"],
+
+  fukushima: ["niigata","gunma","tochigi","ibaraki","miyagi","yamagata"],
+  miyagi: ["fukushima","yamagata","iwate"],
+  yamagata: ["niigata","fukushima","miyagi","akita"],
+  akita: ["yamagata","iwate","aomori"],
+  iwate: ["miyagi","akita","aomori"],
+  aomori: ["akita","iwate","hokkaido"],
+  hokkaido: ["aomori"]
+};
+
+// 統計カテゴリ（10種類以上）
+const CATEGORIES = [
+  {
+    id: "pop_total",
+    label: "人口",
+    unit: "万人",
+    desc: "{pref}は大都市や住宅地が集まり、人口が多い地域として知られています。",
+    detail: "{pref}の人口は約{value}万人。都市機能や交通網が発達していることが背景にあります。"
+  },
+  {
+    id: "area",
+    label: "面積",
+    unit: "千km²",
+    desc: "{pref}は広い土地を持ち、自然や農地が豊富な県です。",
+    detail: "{pref}の面積は約{value}千km²。山地や平野、海岸線など多様な地形が広がっています。"
+  },
+  {
+    id: "rainfall",
+    label: "年間降水量",
+    unit: "mm",
+    desc: "{pref}は雨の多い地域で、水資源が豊富です。",
+    detail: "{pref}の年間降水量は約{value}mm。地形や季節風の影響を強く受けています。"
+  },
+  {
+    id: "convenience",
+    label: "コンビニ店舗数",
+    unit: "店",
+    desc: "{pref}は人口密度が高く、コンビニが生活インフラとして発達しています。",
+    detail: "{pref}には約{value}店のコンビニがあります。通勤・通学や観光客の需要も支えています。"
+  },
+  {
+    id: "orange",
+    label: "みかん生産量",
+    unit: "トン",
+    desc: "{pref}は温暖な気候を活かした柑橘類の産地として有名です。",
+    detail: "{pref}のみかん生産量は約{value}トン。日当たりの良い斜面や海風が甘さを育てます。"
+  },
+  {
+    id: "apple",
+    label: "りんご生産量",
+    unit: "トン",
+    desc: "{pref}は冷涼な気候を活かしたりんごの名産地です。",
+    detail: "{pref}のりんご生産量は約{value}トン。昼夜の寒暖差が甘みと酸味のバランスを生みます。"
+  },
+  {
+    id: "rice",
+    label: "米の収穫量",
+    unit: "千トン",
+    desc: "{pref}は水田が広がり、米作りが盛んな地域です。",
+    detail: "{pref}の米の収穫量は約{value}千トン。豊かな水資源と肥沃な土壌が支えています。"
+  },
+  {
+    id: "temple",
+    label: "お寺の数",
+    unit: "ヶ所",
+    desc: "{pref}は歴史的な寺院が多く、文化財も数多く残されています。",
+    detail: "{pref}には約{value}ヶ所のお寺があります。古くからの信仰と都としての歴史が背景です。"
+  },
+  {
+    id: "onsen",
+    label: "温泉地の数",
+    unit: "ヶ所",
+    desc: "{pref}は温泉地が多く、観光地としても人気があります。",
+    detail: "{pref}には約{value}ヶ所の温泉地があります。火山活動や地形が温泉資源を生み出しています。"
+  },
+  {
+    id: "cow",
+    label: "乳牛頭数",
+    unit: "頭",
+    desc: "{pref}は酪農が盛んで、牛乳や乳製品の産地として知られています。",
+    detail: "{pref}の乳牛頭数は約{value}頭。広い牧草地と涼しい気候が酪農に適しています。"
+  },
+  {
+    id: "rent",
+    label: "家賃相場（1K）",
+    unit: "万円",
+    desc: "{pref}は都市部の需要により、家賃相場が特徴的な地域です。",
+    detail: "{pref}の1K家賃相場は約{value}万円。交通アクセスや商業施設の充実度が影響しています。"
+  },
+  {
+    id: "snow",
+    label: "年間降雪量",
+    unit: "cm",
+    desc: "{pref}は雪の多い地域で、冬の暮らしや観光に影響を与えています。",
+    detail: "{pref}の年間降雪量は約{value}cm。日本海側の気候や山地の地形が大きく関わっています。"
+  }
+];
+
+// 簡易・決定的な疑似乱数（県IDとカテゴリIDから値を生成）
+function pseudoRandom(prefId, catId) {
+  let h = 0;
+  const s = prefId + "|" + catId;
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  }
+  return (h % 1000) / 1000; // 0〜0.999
+}
+
+// カテゴリごとのスケール設定
+const CATEGORY_SCALE = {
+  pop_total: { base: 20, range: 140 },   // 20〜160万人
+  area: { base: 1, range: 8 },           // 1〜9千km²
+  rainfall: { base: 800, range: 2200 },  // 800〜3000mm
+  convenience: { base: 200, range: 1800 }, // 200〜2000店
+  orange: { base: 5, range: 95 },        // 5〜100トン
+  apple: { base: 5, range: 95 },
+  rice: { base: 10, range: 90 },         // 10〜100千トン
+  temple: { base: 50, range: 950 },      // 50〜1000ヶ所
+  onsen: { base: 10, range: 90 },        // 10〜100ヶ所
+  cow: { base: 1000, range: 19000 },     // 1000〜20000頭
+  rent: { base: 3, range: 9 },           // 3〜12万円
+  snow: { base: 20, range: 480 }         // 20〜500cm
+};
+
+// 北・南の傾向を少し反映させる補正
+function getStatValue(prefId, catId) {
+  const pref = PREFS.find(p => p.id === prefId);
+  const cat = CATEGORY_SCALE[catId];
+  if (!pref || !cat) return 0;
+  const r = pseudoRandom(prefId, catId);
+  let bias = 0;
+  // 北の方が強そうなカテゴリ
+  if (["snow","apple","cow","rice"].includes(catId)) {
+    bias = (pref.score - 15) * 0.02;
+  }
+  // 南の方が強そうなカテゴリ
+  if (["orange","rainfall"].includes(catId)) {
+    bias = (10 - Math.abs(pref.score - 10)) * 0.015;
+  }
+  // 都市部が強そうなカテゴリ
+  if (["pop_total","convenience","rent","temple"].includes(catId)) {
+    const urban = ["tokyo","kanagawa","osaka","aichi","fukuoka","saitama","chiba","hyogo","hokkaido"];
+    bias = urban.includes(prefId) ? 0.25 : 0;
+  }
+  const v = Math.min(0.99, Math.max(0, r + bias));
+  return Math.round((cat.base + cat.range * v) * 10) / 10;
+}
+
+// ランク（全国何位か）を計算
+function getRank(prefId, catId) {
+  const values = PREFS.map(p => ({ id: p.id, v: getStatValue(p.id, catId) }));
+  values.sort((a,b) => b.v - a.v);
+  const idx = values.findIndex(x => x.id === prefId);
+  return idx + 1;
+}
+
+/* =========================
+   ゲーム状態
+   ========================= */
+
+let currentPrefId = "okinawa";
+let turnCount = 0;
+let pathLog = []; // {from,to,catId,success,valueFrom,valueTo}
+let lastChoices = [];
+let audioCtx = null;
+
+/* =========================
+   ユーティリティ
+   ========================= */
+
+function getPref(id) {
+  return PREFS.find(p => p.id === id);
+}
+
+function getNeighbors(id) {
+  return NEIGHBORS[id] || [];
+}
+
+function distanceScore(id) {
+  const p = getPref(id);
+  return p ? p.score : 0;
+}
+
+function formatValue(catId, value) {
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (!cat) return value;
+  if (catId === "rent") {
+    return value.toFixed(1);
+  }
+  if (["pop_total","area","rice"].includes(catId)) {
+    return value.toFixed(1);
+  }
+  return Math.round(value);
+}
+
+/* =========================
+   サウンド（簡易SE）
+   ========================= */
+
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playTone(freq, duration, type="sine", volume=0.2) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = volume;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playDrumRoll() {
+  initAudio();
+  let t = 0;
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => playTone(120 + i*20, 0.05, "triangle", 0.15), t);
+    t += 70;
+  }
+}
+
+function playGood() {
+  initAudio();
+  playTone(880, 0.15, "square", 0.2);
+  setTimeout(() => playTone(1175, 0.2, "square", 0.2), 150);
+}
+
+function playBad() {
+  initAudio();
+  playTone(220, 0.25, "sawtooth", 0.2);
+}
+
+function playGoal() {
+  initAudio();
+  const notes = [523,659,784,1047];
+  notes.forEach((f,i) => {
+    setTimeout(() => playTone(f, 0.25, "square", 0.25), i*220);
+  });
+}
+
+/* =========================
+   マップ描画・更新
+   ========================= */
+
+const mapSvg = document.getElementById("japan-map");
+const avatar = document.getElementById("avatar");
+const moveArrow = document.getElementById("move-arrow");
+const goalBanner = document.getElementById("goal-banner");
+const confettiContainer = document.getElementById("confetti");
+
+function updateMap() {
+  const visitedSet = new Set(pathLog.map(p => p.to));
+  visitedSet.add("okinawa");
+  const neighbors = new Set(getNeighbors(currentPrefId));
+  const prefElems = mapSvg.querySelectorAll(".pref");
+  prefElems.forEach(el => {
+    const id = el.getAttribute("data-id");
+    el.classList.remove("current","neighbor","visited");
+    if (id === currentPrefId) {
+      el.classList.add("current");
+    } else if (neighbors.has(id)) {
+      el.classList.add("neighbor");
+    } else if (visitedSet.has(id)) {
+      el.classList.add("visited");
+    }
+  });
+  // アバター位置
+  const currentRect = mapSvg.querySelector(`.pref[data-id="${currentPrefId}"]`);
+  if (currentRect) {
+    const bbox = currentRect.getBBox();
+    avatar.setAttribute("cx", bbox.x + bbox.width/2);
+    avatar.setAttribute("cy", bbox.y + bbox.height/2);
+  }
+}
+
+/* =========================
+   UI更新
+   ========================= */
+
+const remainingStepsEl = document.getElementById("remaining-steps");
+const turnCountEl = document.getElementById("turn-count");
+const currentPrefLabelEl = document.getElementById("current-pref-label");
+const statusCurrentEl = document.getElementById("status-current");
+const statusScoreEl = document.getElementById("status-score");
+const statusLastMoveEl = document.getElementById("status-last-move");
+const statusCurrentNameEl = document.getElementById("status-current-name");
+const logBoxEl = document.getElementById("log-box");
+const choicesEl = document.getElementById("choices");
+const hintTextEl = document.getElementById("hint-text");
+
+function updateStatus() {
+  const current = getPref(currentPrefId);
+  const score = distanceScore(currentPrefId);
+  const goalScore = distanceScore("hokkaido");
+  const remaining = Math.max(0, goalScore - score);
+  remainingStepsEl.textContent = remaining.toString();
+  turnCountEl.textContent = turnCount.toString();
+  currentPrefLabelEl.textContent = current.name;
+  statusCurrentEl.textContent = current.name;
+  statusScoreEl.textContent = score.toString();
+  statusCurrentNameEl.textContent = current.name;
+}
+
+function addLogEntry(entry) {
+  const div = document.createElement("div");
+  div.className = "log-entry";
+  const cat = CATEGORIES.find(c => c.id === entry.catId);
+  const fromPref = getPref(entry.from);
+  const toPref = getPref(entry.to);
+  const badgeClass = entry.success ? "good" : "bad";
+  const badgeText = entry.success ? "北上成功" : (entry.to === entry.from ? "停滞" : "南下");
+  div.innerHTML = `
+    <span class="badge ${badgeClass}">${badgeText}</span>
+    <span>${fromPref.name} → ${toPref.name}</span><br>
+    <span style="color:var(--text-sub);">${cat.label}：${formatValue(entry.catId, entry.valueTo)}${CATEGORIES.find(c=>c.id===entry.catId).unit}</span>
+  `;
+  logBoxEl.prepend(div);
+}
+
+function refreshLog() {
+  logBoxEl.innerHTML = "";
+  pathLog.slice().reverse().forEach(addLogEntry);
+}
+
+/* =========================
+   選択肢生成
+   ========================= */
+
+function generateChoices() {
+  choicesEl.innerHTML = "";
+  lastChoices = [];
+  const numChoices = 3 + Math.floor(Math.random()*2); // 3 or 4
+  const used = new Set();
+  const currentScore = distanceScore(currentPrefId);
+  const neighbors = getNeighbors(currentPrefId);
+  const candidates = CATEGORIES.slice();
+
+  function pickRandomCategory() {
+    if (used.size >= candidates.length) return null;
+    let cat;
+    let tries = 0;
+    do {
+      cat = candidates[Math.floor(Math.random()*candidates.length)];
+      tries++;
+      if (tries > 50) break;
+    } while (used.has(cat.id));
+    used.add(cat.id);
+    return cat;
+  }
+
+  // まずランダムに候補を作る
+  for (let i = 0; i < numChoices; i++) {
+    const cat = pickRandomCategory();
+    if (!cat) break;
+    lastChoices.push(cat);
+  }
+
+  // 少なくとも1つは「北上しやすい」カテゴリを含めるよう調整
+  function isGoodCategory(cat) {
+    const targets = [currentPrefId, ...neighbors];
+    let bestId = currentPrefId;
+    let bestVal = -Infinity;
+    targets.forEach(id => {
+      const v = getStatValue(id, cat.id);
+      if (v > bestVal) {
+        bestVal = v;
+        bestId = id;
+      }
+    });
+    return distanceScore(bestId) > currentScore;
+  }
+
+  let hasGood = lastChoices.some(isGoodCategory);
+  let safety = 0;
+  while (!hasGood && safety < 20) {
+    const cat = pickRandomCategory();
+    if (!cat) break;
+    lastChoices[Math.floor(Math.random()*lastChoices.length)] = cat;
+    hasGood = lastChoices.some(isGoodCategory);
+    safety++;
+  }
+
+  lastChoices.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.dataset.catId = cat.id;
+    btn.innerHTML = `
+      <span class="main">${cat.label}</span>
+      <span class="sub">どの県が一番${cat.label}が多いかな？</span>
+    `;
+    btn.addEventListener("click", () => onChoice(cat.id));
+    choicesEl.appendChild(btn);
+  });
+}
+
+/* =========================
+   移動ロジック
+   ========================= */
+
+function onChoice(catId) {
+  // ボタン無効化
+  Array.from(choicesEl.querySelectorAll(".choice-btn")).forEach(b => b.classList.add("disabled"));
+
+  playDrumRoll();
+
+  const current = currentPrefId;
+  const targets = [current, ...getNeighbors(current)];
+  let bestId = current;
+  let bestVal = -Infinity;
+  const values = {};
+  targets.forEach(id => {
+    const v = getStatValue(id, catId);
+    values[id] = v;
+    if (v > bestVal) {
+      bestVal = v;
+      bestId = id;
+    }
+  });
+
+  const fromScore = distanceScore(current);
+  const toScore = distanceScore(bestId);
+  const success = toScore > fromScore;
+  const stayed = bestId === current;
+
+  // 矢印エフェクト
+  const fromRect = mapSvg.querySelector(`.pref[data-id="${current}"]`);
+  const toRect = mapSvg.querySelector(`.pref[data-id="${bestId}"]`);
+  if (fromRect && toRect) {
+    const fb = fromRect.getBBox();
+    const tb = toRect.getBBox();
+    moveArrow.setAttribute("x1", fb.x + fb.width/2);
+    moveArrow.setAttribute("y1", fb.y + fb.height/2);
+    moveArrow.setAttribute("x2", tb.x + tb.width/2);
+    moveArrow.setAttribute("y2", tb.y + tb.height/2);
+    moveArrow.style.opacity = "1";
+    setTimeout(() => { moveArrow.style.opacity = "0"; }, 600);
+  }
+
+  setTimeout(() => {
+    currentPrefId = bestId;
+    turnCount++;
+    const entry = {
+      from: current,
+      to: bestId,
+      catId,
+      success,
+      valueFrom: values[current],
+      valueTo: values[bestId]
+    };
+    pathLog.push(entry);
+    statusLastMoveEl.textContent = `${CATEGORIES.find(c=>c.id===catId).label}で ${getPref(current).name} → ${getPref(bestId).name}`;
+    addLogEntry(entry);
+    updateMap();
+    updateStatus();
+    showResultOverlay(entry);
+  }, 600);
+}
+
+/* =========================
+   結果オーバーレイ
+   ========================= */
+
+const overlayEl = document.getElementById("overlay");
+const overlayTitleEl = document.getElementById("overlay-title");
+const overlayTagEl = document.getElementById("overlay-tag");
+const overlayThumbEl = document.getElementById("overlay-thumb");
+const overlayPrefNameEl = document.getElementById("overlay-pref-name");
+const overlayValueEl = document.getElementById("overlay-value");
+const overlayRankEl = document.getElementById("overlay-rank");
+const overlayDescEl = document.getElementById("overlay-desc");
+const overlayCompareEl = document.getElementById("overlay-compare");
+const overlayMoreBtn = document.getElementById("overlay-more");
+const overlayNextBtn = document.getElementById("overlay-next");
+
+let lastOverlayEntry = null;
+
+function showResultOverlay(entry) {
+  lastOverlayEntry = entry;
+  const cat = CATEGORIES.find(c => c.id === entry.catId);
+  const toPref = getPref(entry.to);
+  const fromPref = getPref(entry.from);
+  const success = entry.success;
+  const stayed = entry.to === entry.from;
+
+  overlayEl.classList.add("active");
+  overlayTitleEl.textContent = stayed ? "その場にとどまった…" : (success ? "Nice Move! 北上成功" : "Back... 南へ下がってしまった");
+  overlayTagEl.textContent = success ? "北上成功" : (stayed ? "停滞" : "南下");
+  overlayTagEl.className = "tag " + (success ? "good" : "bad");
+  overlayThumbEl.style.backgroundImage = toPref.thumb;
+  const valueFormatted = formatValue(entry.catId, entry.valueTo);
+  overlayPrefNameEl.textContent = toPref.name;
+  overlayValueEl.innerHTML = `${cat.label}：<strong>${valueFormatted}</strong><span class="unit">${cat.unit}</span>`;
+  const rank = getRank(entry.to, entry.catId);
+  overlayRankEl.textContent = `全国第${rank}位（推定）`;
+  overlayDescEl.textContent = cat.desc.replace("{pref}", toPref.name).replace("{value}", valueFormatted);
+
+  // 比較テキスト
+  const fromVal = formatValue(entry.catId, entry.valueFrom);
+  overlayCompareEl.textContent = `${fromPref.name}：${fromVal}${cat.unit} → ${toPref.name}：${valueFormatted}${cat.unit}（最大値の県へ移動しました）`;
+
+  // サウンドと演出
+  if (success && !stayed) {
+    playGood();
+  } else if (!success && !stayed) {
+    playBad();
+  }
+
+  // ゴール判定
+  if (entry.to === "hokkaido") {
+    showGoalEffects();
+  }
+
+  overlayMoreBtn.onclick = () => {
+    overlayDescEl.textContent = cat.detail
+      .replace("{pref}", toPref.name)
+      .replace("{value}", valueFormatted);
+  };
+  overlayNextBtn.onclick = () => {
+    overlayEl.classList.remove("active");
+    if (entry.to === "hokkaido") {
+      openEndroll();
+    } else {
+      generateChoices();
+      Array.from(choicesEl.querySelectorAll(".choice-btn")).forEach(b => b.classList.remove("disabled"));
+    }
+  };
+}
+
+function showGoalEffects() {
+  goalBanner.classList.add("active");
+  playGoal();
+  launchConfetti();
+  setTimeout(() => {
+    goalBanner.classList.remove("active");
+  }, 2500);
+}
+
+function launchConfetti() {
+  confettiContainer.innerHTML = "";
+  confettiContainer.style.display = "block";
+  const colors = ["#ffeb3b","#ff9800","#f44336","#4caf50","#03a9f4","#e91e63"];
+  for (let i = 0; i < 80; i++) {
+    const div = document.createElement("div");
+    div.className = "confetti-piece";
+    div.style.left = Math.random()*100 + "%";
+    div.style.background = colors[Math.floor(Math.random()*colors.length)];
+    div.style.animationDelay = (Math.random()*0.5) + "s";
+    confettiContainer.appendChild(div);
+  }
+  setTimeout(() => {
+    confettiContainer.style.display = "none";
+    confettiContainer.innerHTML = "";
+  }, 2200);
+}
+
+/* =========================
+   エンドロール
+   ========================= */
+
+const endrollEl = document.getElementById("endroll");
+const endrollCloseBtn = document.getElementById("endroll-close");
+const endrollListEl = document.getElementById("endroll-list");
+const endrollMapSvg = document.getElementById("endroll-map");
+const endrollAvatar = document.getElementById("endroll-avatar");
+const btnReplay = document.getElementById("btn-replay");
+const btnShare = document.getElementById("btn-share");
+
+function openEndroll() {
+  endrollEl.classList.add("active");
+  buildEndrollList();
+  positionEndrollAvatar("okinawa");
+}
+
+function closeEndroll() {
+  endrollEl.classList.remove("active");
+}
+
+function buildEndrollList() {
+  endrollListEl.innerHTML = "";
+  pathLog.forEach((entry, idx) => {
+    const cat = CATEGORIES.find(c => c.id === entry.catId);
+    const fromPref = getPref(entry.from);
+    const toPref = getPref(entry.to);
+    const div = document.createElement("div");
+    div.className = "endroll-item";
+    const badge = entry.success ? "北上" : (entry.to === entry.from ? "停滞" : "南下");
+    div.innerHTML = `
+      <div class="title">#${idx+1} ${fromPref.name} → ${toPref.name}（${badge}）</div>
+      <div class="meta">${cat.label}：${formatValue(entry.catId, entry.valueTo)}${cat.unit}</div>
+      <div class="meta">距離スコア：${distanceScore(entry.from)} → ${distanceScore(entry.to)}</div>
+    `;
+    endrollListEl.appendChild(div);
+  });
+}
+
+function positionEndrollAvatar(prefId) {
+  const rect = endrollMapSvg.querySelector(`.pref[data-id="${prefId}"]`);
+  if (!rect) return;
+  const bbox = rect.getBBox();
+  endrollAvatar.setAttribute("cx", bbox.x + bbox.width/2);
+  endrollAvatar.setAttribute("cy", bbox.y + bbox.height/2);
+}
+
+function replayRoute() {
+  if (pathLog.length === 0) return;
+  let i = 0;
+  positionEndrollAvatar("okinawa");
+  const interval = setInterval(() => {
+    if (i >= pathLog.length) {
+      clearInterval(interval);
+      return;
+    }
+    positionEndrollAvatar(pathLog[i].to);
+    i++;
+  }, 600);
+}
+
+/* =========================
+   初期化・リスタート
+   ========================= */
+
+function resetGame() {
+  currentPrefId = "okinawa";
+  turnCount = 0;
+  pathLog = [];
+  logBoxEl.innerHTML = "";
+  statusLastMoveEl.textContent = "--";
+  goalBanner.classList.remove("active");
+  updateMap();
+  updateStatus();
+  generateChoices();
+  Array.from(choicesEl.querySelectorAll(".choice-btn")).forEach(b => b.classList.remove("disabled"));
+}
+
+document.getElementById("btn-restart").addEventListener("click", () => {
+  resetGame();
+});
+
+endrollCloseBtn.addEventListener("click", closeEndroll);
+btnReplay.addEventListener("click", replayRoute);
+btnShare.addEventListener("click", () => {
+  const turns = turnCount;
+  const via = pathLog.map(p => getPref(p.to).name).join(" → ");
+  const msg = `【データで北上！】${turns}ターンで北海道に到達！経由：${via}`;
+  alert("SNSシェア（仮）：\n" + msg);
+});
+
+/* =========================
+   起動
+   ========================= */
+
+window.addEventListener("load", () => {
+  resetGame();
+});
+</script>
+</body>
+</html>
